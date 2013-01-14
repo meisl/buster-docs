@@ -361,9 +361,16 @@ See full docs at :ref:`buster-sinon`.
 Asynchronous tests
 ==================
 
-Asynchronous tests are tests that aren't finished running when the test method
-has finished executing. To tag a test as async, have the test function take
-one argument, ``done``::
+Asynchronous tests are tests that are not (necessarily) finished running when the 
+test method returns.
+
+Basically, there are two ways of making a test function asynchronous:
+
+- by returning a :ref:`thenable promise <returning-a-promise>`
+
+- by obtaining a callback from Buster.JS and calling it to signal that the async test has indeed finished (described here)
+
+To tag a test as async, have the test function take one argument, ``done``::
 
     buster.testCase("My thing", {
         "test not asynchronous": function () {
@@ -371,16 +378,28 @@ one argument, ``done``::
         },
 
         "test asynchronous": function (done) {
+            myLibrary.doAjaxRequest("/foo", function (response) {
+                assert.equals(response.statusCode, 200);
+                done();
+            });
+        }
+    });
+
+If you *don't* call ``done``, the test will eventually time out and fail.
+
+Alternatively, the function passed to your test method can be used as a
+*factory*, to construct the actual callback from your assertions::
+
+    buster.testCase("My thing", {
+        "test asynchronous, 'done' as factory": function (done) {
             myLibrary.doAjaxRequest("/foo", done(function (response) {
                 assert.equals(response.statusCode, 200);
             }));
         }
     });
 
-The ``done`` argument is a function. Call it to tell Buster.JS that the
-asynchronous test has finished running. If you *don't* call ``done``, the test
-will eventually time out and fail. You can also have the test function return a
-:ref:`thenable promise <returning-a-promise>` to make it asynchronous.
+This is the recommended variant as it allows for a more compact style
+and is also more robust. See :ref:`full docs <async-tests>` for details.
 
 ``setUp`` and ``tearDown`` can also be asynchronous. The procedure is identical
 to that of tests::
@@ -403,6 +422,12 @@ to that of tests::
 
         // ... tests
     });
+
+Here we're using ``done`` as a callback (as opposed to a callback *factory*).
+In fact, it doesn't make any difference because there aren't any assertions.
+Note, however, that you should *never* pass ``done`` directly as e.g. in ``.on("close", done)``!
+This is dangerous because correct invocation (= without arguments) is outside
+of your control.
 
 For more, see :ref:`async-tests` for xUnit style and :ref:`async-specs` for BDD
 style.
