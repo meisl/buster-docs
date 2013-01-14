@@ -370,7 +370,8 @@ Basically, there are two ways of making a test function asynchronous:
 
 - by obtaining a callback from Buster.JS and calling it to signal that the async test has indeed finished (described here)
 
-To tag a test as async, have the test function take one argument, ``done``::
+The latter (described here) comes itself in two variants.
+In both of these, have the test function take one argument, ``done``, to tag it as async::
 
     buster.testCase("My thing", {
         "test not asynchronous": function () {
@@ -385,7 +386,9 @@ To tag a test as async, have the test function take one argument, ``done``::
         }
     });
 
-If you *don't* call ``done``, the test will eventually time out and fail.
+Here, said callback simply is the ``done`` function.
+You call it after all assertions, with no arguments.
+If you *don't*, the test will eventually time out and fail.
 
 Alternatively, the function passed to your test method can be used as a
 *factory*, to construct the actual callback from your assertions::
