@@ -368,10 +368,10 @@ Basically, there are two ways of making a test function asynchronous:
 
 - by returning a :ref:`thenable promise <returning-a-promise>`
 
-- by obtaining a callback from Buster.JS and calling it to signal that the async test has indeed finished (described here)
+- by obtaining a callback from Buster.JS and calling it to signal that the async test has indeed finished
 
-The latter (described here) comes itself in two variants.
-In both of these, have the test function take one argument, ``done``, to tag it as async::
+The latter (described here) comes itself in two variants, both of which
+require the test function to take one argument, ``done``::
 
     buster.testCase("My thing", {
         "test not asynchronous": function () {
